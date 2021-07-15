@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>This is a current page</h1>
+    <div class="chat" style="height: 50%;width: 100%;"></div>
+    <form action="www.google.com" method="post" id="form">
+        <label for="roomID">Room ID</label>
+        <input type="text" name="roomID" id="roomID">
+        <input type="submit" value="Join room">
+    </form>
+
+    <form action="www.google.com" method="post" id="sendForm">
+        <label for="msg">Enter message</label>
+        <input type="text" name="msg" id="msg2">
+        <label for="roomID">Room ID</label>
+        <input type="text" name="roomID2" id="roomID2">
+        <input type="submit" value="send ">
+    </form>
+    <input type="button" value="leave room" onclick="leave_room()">
+    <input type="button" value="check available room" onclick="show_all_room()">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"></script>
+    <script type="text/javascript">
+        var forms = document.getElementById('form');
+        var sendForm = document.getElementById('sendForm');
+        const socket = io.connect("http://127.0.0.1:5000");
+        forms.addEventListener("submit",function(e){
+            var roomID = document.getElementById("roomID").value;
+            e.preventDefault();
+            socket.emit("join_room",{
+                roomID:roomID
+            })
+        })
+        sendForm.addEventListener("submit",function(e){
+            e.preventDefault();
+            var msg = document.getElementById("msg2").value;
+            var roomID = document.getElementById("roomID2").value;
+            socket.emit("send_message",{
+                msg:msg,
+                roomID:roomID
+            })
+        })
+        const leave_room = () =>{
+
+            roomID = document.getElementById("roomID").value;
+            socket.emit("close_room",{
+                roomID:roomID
+            })
+        }
+
+        const show_all_room = () =>{
+            var roomID = document.getElementById("roomID").value;
+            socket.emit('show_all_rooms',{
+                roomID: roomID
+            })
+        }
+        socket.on('connect',function(){
+            console.log("Connected");
+        })
+        socket.on('recieve_message',function(data){
+            console.log(data);
+        })
+    </script>
+</body>
+</html>
